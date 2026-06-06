@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Scheduling Simulator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="landing-screen" class="screen active">
+        <div class="bg-grid"></div>
+        <div class="content-wrapper">
+            <div class="badge"><span class="badge-dot"></span>OS Simulator v1.0</div>
+            <h1>CPU Scheduling<br><span>Visualizer</span></h1>
+            <p>Interactive simulations for Pre-emptive and Non-preemptive scheduling algorithms. Build intuition through visualization.</p>
+            <button id="start-btn" class="primary-btn">
+                <span>Start Simulation</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <div class="algo-pills">
+                <span class="pill">FCFS</span>
+                <span class="pill">SJF</span>
+                <span class="pill">Round Robin</span>
+                <span class="pill">SRTF</span>
+                <span class="pill">Priority</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="selection-screen" class="screen hidden">
+        <div class="content-wrapper">
+            <button class="back-btn" id="back-to-landing">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back
+            </button>
+            <div class="screen-header">
+                <div class="step-indicator"><span>01</span></div>
+                <h2>Scheduling Type</h2>
+                <p>Choose how the CPU handles process interruptions.</p>
+            </div>
+            <div class="card-container">
+                <div class="option-card" id="non-preemptive-btn">
+                    <div class="card-icon">🔒</div>
+                    <h3>Non-Preemptive</h3>
+                    <p>Once a process starts, it holds the CPU until it fully completes.</p>
+                    <div class="card-tag">FCFS · SJF · Priority</div>
+                </div>
+                <div class="option-card" id="preemptive-btn">
+                    <div class="card-icon">⚡</div>
+                    <h3>Pre-emptive</h3>
+                    <p>Processes can be interrupted by higher priority or shorter tasks mid-execution.</p>
+                    <div class="card-tag">Round Robin · SRTF · Priority</div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <div id="algo-selection-screen" class="screen hidden">
+        <div class="content-wrapper">
+            <button class="back-btn" id="back-to-type">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back
+            </button>
+            <div class="screen-header">
+                <div class="step-indicator"><span>02</span></div>
+                <h2 id="algo-type-title">Select Algorithm</h2>
+                <p>Choose the specific scheduling logic for the CPU.</p>
+            </div>
+            <div id="algo-cards-container" class="card-container algo-card-container"></div>
+        </div>
+    </div>
+
+    <div id="input-screen" class="screen hidden">
+        <div class="content-wrapper">
+            <button class="back-btn" id="back-to-algo">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back
+            </button>
+            <div class="screen-header">
+                <div class="step-indicator"><span>03</span></div>
+                <h2 id="selected-algo-name">Algorithm Name</h2>
+                <p>Enter process details to run the simulation.</p>
+            </div>
+            
+            <div class="input-controls">
+                <div class="control-group">
+                    <label>Total Processes</label>
+                    <input type="number" id="process-count" value="3" min="1" max="20" placeholder="e.g. 4">
+                </div>
+                <div id="quantum-wrapper" class="hidden control-group">
+                    <label>Time Quantum</label>
+                    <input type="number" id="tq" value="2" min="1" placeholder="e.g. 2">
+                </div>
+                <button id="generate-btn" class="ghost-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+                    Generate Table
+                </button>
+            </div>
+    
+            <div id="process-table-container"></div>
+            
+            <button id="calculate-btn" class="primary-btn">
+                <span>Run Simulation</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </button>
+    
+            <div id="results-area" class="hidden">
+                <div class="results-header">
+                    <h2>Simulation Results</h2>
+                    <div class="results-badge" id="algo-result-badge"></div>
+                </div>
+                
+                <div class="result-section">
+                    <h3><span class="section-icon">▬</span> Gantt Chart</h3>
+                    <div id="gantt-chart" class="gantt-container"></div>
+                </div>
+                
+                <div class="result-section">
+                    <h3><span class="section-icon">≡</span> Process Table</h3>
+                    <div id="output-table-container"></div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Waiting Time</div>
+                        <div class="stat-value"><span id="avg-wt">0</span> <small>ms</small></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Turnaround Time</div>
+                        <div class="stat-value"><span id="avg-tat">0</span> <small>ms</small></div>
+                    </div>
+                </div>
+
+                <button onclick="location.reload()" class="reset-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+                    Reset Simulation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
